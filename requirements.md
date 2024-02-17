@@ -22,6 +22,7 @@ npm i eslint@8.28.0 -DE
 - webpack-cli@5.0.0
 - webpack-dev-server@4.11.1
 - copy-webpack-plugin@11.0.0
+- html-webpack-plugin@5.5.1
 - @babel/core@7.20.5
 - @babel/preset-env@7.20.2
 - babel-loader@9.1.0
