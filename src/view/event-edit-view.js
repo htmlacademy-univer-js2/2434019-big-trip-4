@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { TYPES, CITIES, POINT_EMPTY } from '../const.js';
 import { formatStringToDateTime, firstLetterToUpperCase, firstLetterToLowerCase } from '../utils.js';
 
@@ -104,29 +104,23 @@ function createEventEditElement({event, eventDestination, eventOffers}) {
     </li>`;
 }
 
-export default class EventEditView {
+export default class EventEditView extends AbstractView {
+  #event = null;
+  #eventDestination = null;
+  #eventOffers = null;
+
   constructor({event = POINT_EMPTY, eventDestination, eventOffers}) {
-    this.event = event;
-    this.eventDestination = eventDestination;
-    this.eventOffers = eventOffers;
+    super();
+    this.#event = event;
+    this.#eventDestination = eventDestination;
+    this.#eventOffers = eventOffers;
   }
 
-  getTemplate() {
+  get template() {
     return createEventEditElement({
-      event: this.event,
-      eventDestination: this.eventDestination,
-      eventOffers: this.eventOffers
+      event: this.#event,
+      eventDestination: this.#eventDestination,
+      eventOffers: this.#eventOffers
     });
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

@@ -1,6 +1,6 @@
 import FilterView from './view/filter-view.js';
 import TripInfoView from './view/trip-info-view.js';
-import {render, RenderPosition} from './render.js';
+import { render, RenderPosition } from './framework/render.js';
 import RoutePresenter from './presenter/route-presenter.js';
 import MockService from './service/mock-service.js';
 import DestinationsModel from './model/destinations-model.js';

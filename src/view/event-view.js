@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { formatStringToDateTime, formatStringToShortDate, formatStringToTime, firstLetterToUpperCase, getPointDuration } from '../utils.js';
 
 function createCheckedOffersElement(offers, checkedOffers) {
@@ -48,29 +48,23 @@ function createEventElement({event, eventDestination, eventOffers}) {
     </li>`;
 }
 
-export default class EventView {
+export default class EventView extends AbstractView {
+  #event = null;
+  #eventDestination = null;
+  #eventOffers = null;
+
   constructor({event, eventDestination, eventOffers}) {
-    this.event = event;
-    this.eventDestination = eventDestination;
-    this.eventOffers = eventOffers;
+    super();
+    this.#event = event;
+    this.#eventDestination = eventDestination;
+    this.#eventOffers = eventOffers;
   }
 
-  getTemplate() {
+  get template() {
     return createEventElement({
-      event: this.event,
-      eventDestination: this.eventDestination,
-      eventOffers: this.eventOffers
+      event: this.#event,
+      eventDestination: this.#eventDestination,
+      eventOffers: this.#eventOffers
     });
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
