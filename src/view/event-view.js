@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { formatStringToDateTime, formatStringToShortDate, formatStringToTime, firstLetterToUpperCase, getPointDuration } from '../utils.js';
 
 function createCheckedOffersElement(offers, checkedOffers) {
@@ -48,29 +48,33 @@ function createEventElement({event, eventDestination, eventOffers}) {
     </li>`;
 }
 
-export default class EventView {
-  constructor({event, eventDestination, eventOffers}) {
-    this.event = event;
-    this.eventDestination = eventDestination;
-    this.eventOffers = eventOffers;
+export default class EventView extends AbstractView {
+  #event = null;
+  #eventDestination = null;
+  #eventOffers = null;
+  #handleRollupClick = null;
+
+  constructor({event, eventDestination, eventOffers, onRollupClick}) {
+    super();
+    this.#event = event;
+    this.#eventDestination = eventDestination;
+    this.#eventOffers = eventOffers;
+    this.#handleRollupClick = onRollupClick;
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupClickHandler);
   }
 
-  getTemplate() {
+  get template() {
     return createEventElement({
-      event: this.event,
-      eventDestination: this.eventDestination,
-      eventOffers: this.eventOffers
+      event: this.#event,
+      eventDestination: this.#eventDestination,
+      eventOffers: this.#eventOffers
     });
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupClick();
+  };
 }
