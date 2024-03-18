@@ -1,7 +1,7 @@
 import FilterView from './view/filter-view.js';
 import TripInfoView from './view/trip-info-view.js';
 import { render, RenderPosition } from './framework/render.js';
-import RoutePresenter from './presenter/route-presenter.js';
+import TripPresenter from './presenter/trip-presenter.js';
 import MockService from './service/mock-service.js';
 import DestinationsModel from './model/destinations-model.js';
 import OffersModel from './model/offers-model.js';
@@ -15,7 +15,7 @@ const destinationsModel = new DestinationsModel(mockService);
 const offersModel = new OffersModel(mockService);
 const eventsModel = new EventsModel(mockService);
 
-const routePresenter = new RoutePresenter({
+const routePresenter = new TripPresenter({
   container: tripEventsContainer,
   destinationsModel,
   offersModel,
