@@ -3,6 +3,7 @@ import TripEventsView from '../view/trip-events-view.js';
 import SortView from '../view/sort-view.js';
 import EventEditView from '../view/event-edit-view.js';
 import EventView from '../view/event-view.js';
+import NoEventView from '../view/no-event-view.js';
 
 export default class TripPresenter {
   #tripEventsComponent = new TripEventsView();
@@ -21,6 +22,15 @@ export default class TripPresenter {
 
   init() {
     this.#tripEvents = [...this.#eventsModel.get()];
+
+    this.#renderTrip();
+  }
+
+  #renderTrip() {
+    if (this.#tripEvents.length === 0) {
+      render(new NoEventView(), this.#container);
+      return;
+    }
 
     render(new SortView(), this.#container);
     render(this.#tripEventsComponent, this.#container);
@@ -57,7 +67,7 @@ export default class TripPresenter {
         replaceEditorToEvent();
         document.removeEventListener('keydown', escKeyDownHandler);
       },
-      onResetClick: () => {
+      onRollupClick: () => {
         replaceEditorToEvent();
         document.removeEventListener('keydown', escKeyDownHandler);
       }

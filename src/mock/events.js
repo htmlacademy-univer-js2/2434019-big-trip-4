@@ -1,4 +1,5 @@
-import { getRandomInteger, getDate } from '../utils.js';
+import { getRandomInteger } from '../utils/common.js';
+import { getDate } from '../utils/event.js';
 import { Price } from '../const.js';
 
 function generateEvent(type, offersID, destinationID) {
