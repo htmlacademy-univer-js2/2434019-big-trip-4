@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { formatStringToDateTime, formatStringToShortDate, formatStringToTime, firstLetterToUpperCase, getPointDuration } from '../utils.js';
+import { firstLetterToUpperCase } from '../utils/common.js';
+import { formatStringToDateTime, formatStringToShortDate, formatStringToTime, getPointDuration } from '../utils/event.js';
 
 function createCheckedOffersElement(offers, checkedOffers) {
   const offerItem = offers.map((offer) => checkedOffers.includes(offer.id) ? `
