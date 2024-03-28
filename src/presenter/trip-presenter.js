@@ -1,20 +1,21 @@
-import { render, replace } from '../framework/render.js';
+import { render, RenderPosition } from '../framework/render.js';
 import TripEventsView from '../view/trip-events-view.js';
 import SortView from '../view/sort-view.js';
-import EventEditView from '../view/event-edit-view.js';
-import EventView from '../view/event-view.js';
+import EventPresenter from './event-presenter.js';
 import NoEventView from '../view/no-event-view.js';
 
 export default class TripPresenter {
-  #tripEventsComponent = new TripEventsView();
-  #container = null;
+  #eventListComponent = new TripEventsView();
+  #sortComponent = new SortView();
+  #noEventComponent = new NoEventView();
+  #tripContainer = null;
   #destinationsModel = null;
   #offersModel = null;
   #eventsModel = null;
   #tripEvents = null;
 
-  constructor({container, destinationsModel, offersModel, eventsModel}) {
-    this.#container = container;
+  constructor({tripContainer, destinationsModel, offersModel, eventsModel}) {
+    this.#tripContainer = tripContainer;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#eventsModel = eventsModel;
@@ -28,59 +29,40 @@ export default class TripPresenter {
 
   #renderTrip() {
     if (this.#tripEvents.length === 0) {
-      render(new NoEventView(), this.#container);
+      this.#renderNoEvents();
       return;
     }
 
-    render(new SortView(), this.#container);
-    render(this.#tripEventsComponent, this.#container);
+    this.#renderSort();
+    this.#renderEventContainer();
+    this.#renderEvents();
+  }
 
+  #renderEventContainer() {
+    render(this.#eventListComponent, this.#tripContainer);
+  }
+
+  #renderSort() {
+    render(this.#sortComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderNoEvents() {
+    render(this.#noEventComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderEvents() {
     for (let i = 0; i < this.#tripEvents.length; i++) {
       this.#renderEvent(this.#tripEvents[i]);
     }
   }
 
   #renderEvent(event) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceEditorToEvent();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const eventComponent = new EventView({
-      event,
-      eventDestination: this.#destinationsModel.getById(event.destination),
-      eventOffers: this.#offersModel.getByType(event.type),
-      onRollupClick: () => {
-        replaceEventToEditor();
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
+    const eventPresenter = new EventPresenter({
+      eventListContainer: this.#eventListComponent,
+      destinationsModel: this.#destinationsModel,
+      offersModel: this.#offersModel,
     });
 
-    const eventEditComponent = new EventEditView({
-      event,
-      eventDestination: this.#destinationsModel.getById(event.destination),
-      eventOffers: this.#offersModel.getByType(event.type),
-      onEditSubmit: () => {
-        replaceEditorToEvent();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      },
-      onRollupClick: () => {
-        replaceEditorToEvent();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    });
-
-    function replaceEventToEditor() {
-      replace(eventEditComponent, eventComponent);
-    }
-
-    function replaceEditorToEvent() {
-      replace(eventComponent, eventEditComponent);
-    }
-
-    render(eventComponent, this.#tripEventsComponent.element);
+    eventPresenter.init(event);
   }
 }
