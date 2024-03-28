@@ -1,4 +1,5 @@
 import { render, RenderPosition } from '../framework/render.js';
+import { updateItem } from '../utils/common.js';
 import TripEventsView from '../view/trip-events-view.js';
 import SortView from '../view/sort-view.js';
 import EventPresenter from './event-presenter.js';
@@ -8,11 +9,14 @@ export default class TripPresenter {
   #eventListComponent = new TripEventsView();
   #sortComponent = new SortView();
   #noEventComponent = new NoEventView();
+
   #tripContainer = null;
   #destinationsModel = null;
   #offersModel = null;
   #eventsModel = null;
   #tripEvents = null;
+
+  #eventPresenters = new Map();
 
   constructor({tripContainer, destinationsModel, offersModel, eventsModel}) {
     this.#tripContainer = tripContainer;
@@ -50,6 +54,11 @@ export default class TripPresenter {
     render(this.#noEventComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
   }
 
+  #handleEventChange = (updatedEvent) => {
+    this.#tripEvents = updateItem(this.#tripEvents, updatedEvent);
+    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
+  };
+
   #renderEvents() {
     for (let i = 0; i < this.#tripEvents.length; i++) {
       this.#renderEvent(this.#tripEvents[i]);
@@ -61,8 +70,10 @@ export default class TripPresenter {
       eventListContainer: this.#eventListComponent,
       destinationsModel: this.#destinationsModel,
       offersModel: this.#offersModel,
+      onDataChange: this.#handleEventChange,
     });
 
     eventPresenter.init(event);
+    this.#eventPresenters.set(event.id, eventPresenter);
   }
 }

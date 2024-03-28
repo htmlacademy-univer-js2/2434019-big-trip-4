@@ -137,7 +137,7 @@ export default class EventEditView extends AbstractView {
 
   #editSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#onEditSubmit();
+    this.#onEditSubmit(this.#event);
   };
 
   #rollupClickHandler = (evt) => {
