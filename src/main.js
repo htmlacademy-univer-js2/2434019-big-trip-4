@@ -18,7 +18,7 @@ const eventsModel = new EventsModel(mockService);
 const filters = generateFilters(eventsModel.get());
 
 const routePresenter = new TripPresenter({
-  container: tripEventsContainer,
+  tripContainer: tripEventsContainer,
   destinationsModel,
   offersModel,
   eventsModel

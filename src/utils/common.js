@@ -18,8 +18,13 @@ function firstLetterToLowerCase(type) {
   return type.toLowerCase();
 }
 
+function updateItem(items, update) {
+  return items.map((item) => item.id === update.id ? update : item);
+}
+
 export {
   getRandomInteger,
   getRandomArrayElement,
   firstLetterToUpperCase,
-  firstLetterToLowerCase};
+  firstLetterToLowerCase,
+  updateItem};

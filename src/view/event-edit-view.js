@@ -110,16 +110,16 @@ export default class EventEditView extends AbstractView {
   #event = null;
   #eventDestination = null;
   #eventOffers = null;
-  #handleEditSubmit = null;
-  #handleRollupClick = null;
+  #onEditSubmit = null;
+  #onRollupClick = null;
 
   constructor({event = POINT_EMPTY, eventDestination, eventOffers, onEditSubmit, onRollupClick}) {
     super();
     this.#event = event;
     this.#eventDestination = eventDestination;
     this.#eventOffers = eventOffers;
-    this.#handleEditSubmit = onEditSubmit;
-    this.#handleRollupClick = onRollupClick;
+    this.#onEditSubmit = onEditSubmit;
+    this.#onRollupClick = onRollupClick;
 
     this.element.querySelector('.event--edit')
       .addEventListener('submit', this.#editSubmitHandler);
@@ -137,11 +137,11 @@ export default class EventEditView extends AbstractView {
 
   #editSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleEditSubmit();
+    this.#onEditSubmit(this.#event);
   };
 
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleRollupClick();
+    this.#onRollupClick();
   };
 }

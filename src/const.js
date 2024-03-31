@@ -54,6 +54,11 @@ const FilterType = {
   PAST: 'past',
 };
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 export {EVENT_COUNT,
   TYPES,
   TITLES,
@@ -65,4 +70,5 @@ export {EVENT_COUNT,
   Duration,
   MSEC_IN_HOUR,
   MSEC_IN_DAY,
-  FilterType};
+  FilterType,
+  Mode};
