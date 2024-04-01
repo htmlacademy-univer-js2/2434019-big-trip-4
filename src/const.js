@@ -59,6 +59,14 @@ const Mode = {
   EDITING: 'EDITING',
 };
 
+const SortType = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFER: 'offer',
+};
+
 export {EVENT_COUNT,
   TYPES,
   TITLES,
@@ -71,4 +79,5 @@ export {EVENT_COUNT,
   MSEC_IN_HOUR,
   MSEC_IN_DAY,
   FilterType,
-  Mode};
+  Mode,
+  SortType};
