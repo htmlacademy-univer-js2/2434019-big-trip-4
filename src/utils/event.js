@@ -9,6 +9,30 @@ dayjs.extend(relativeTime);
 
 let date = dayjs().subtract(getRandomInteger(0, Duration.DAY), 'day').toDate();
 
+const formatStringToDateTime = (dateF) => dayjs(dateF).format('DD/MM/YY HH:mm');
+const formatStringToShortDate = (dateF) => dayjs(dateF).format('MMM DD');
+const formatStringToTime = (dateF) => dayjs(dateF).format('HH:mm');
+
+const getPointDuration = (dateFrom, dateTo) => {
+  const timeDiff = dayjs(dateTo).diff(dayjs(dateFrom));
+
+  if (timeDiff >= MSEC_IN_DAY) {
+    return dayjs.duration(timeDiff).format('DD[D] HH[H] mm[M]');
+  } else if (timeDiff >= MSEC_IN_HOUR) {
+    return dayjs.duration(timeDiff).format('HH[H] mm[M]');
+  }
+  return dayjs.duration(timeDiff).format('mm[M]');
+};
+
+const sortByTime = (event1, event2) => {
+  const time1 = dayjs(event1.dateTo).diff(dayjs(event1.dateFrom));
+  const time2 = dayjs(event2.dateTo).diff(dayjs(event2.dateFrom));
+
+  return time2 - time1;
+};
+
+const sortByPrice = (event1, event2) => event2.price - event1.price;
+
 function getDate({ next }) {
   const minsGap = getRandomInteger(0, Duration.MIN);
   const hoursGap = getRandomInteger(1, Duration.HOUR);
@@ -37,21 +61,6 @@ function isEventPast(event) {
   return dayjs().isAfter(event.dateTo);
 }
 
-const formatStringToDateTime = (dateF) => dayjs(dateF).format('DD/MM/YY HH:mm');
-const formatStringToShortDate = (dateF) => dayjs(dateF).format('MMM DD');
-const formatStringToTime = (dateF) => dayjs(dateF).format('HH:mm');
-
-const getPointDuration = (dateFrom, dateTo) => {
-  const timeDiff = dayjs(dateTo).diff(dayjs(dateFrom));
-
-  if (timeDiff >= MSEC_IN_DAY) {
-    return dayjs.duration(timeDiff).format('DD[D] HH[H] mm[M]');
-  } else if (timeDiff >= MSEC_IN_HOUR) {
-    return dayjs.duration(timeDiff).format('HH[H] mm[M]');
-  }
-  return dayjs.duration(timeDiff).format('mm[M]');
-};
-
 export {
   getDate,
   formatStringToDateTime,
@@ -60,4 +69,6 @@ export {
   getPointDuration,
   isEventFuture,
   isEventPresent,
-  isEventPast};
+  isEventPast,
+  sortByTime,
+  sortByPrice};

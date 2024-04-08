@@ -69,6 +69,11 @@ export default class EventPresenter {
     }
   }
 
+  destroy() {
+    remove(this.#eventComponent);
+    remove(this.#eventEditComponent);
+  }
+
   #replaceEventToEditor() {
     replace(this.#eventEditComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);

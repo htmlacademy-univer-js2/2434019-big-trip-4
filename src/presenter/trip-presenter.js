@@ -4,10 +4,12 @@ import TripEventsView from '../view/trip-events-view.js';
 import SortView from '../view/sort-view.js';
 import EventPresenter from './event-presenter.js';
 import NoEventView from '../view/no-event-view.js';
+import { SortType } from '../const.js';
+import { sortByTime, sortByPrice } from '../utils/event.js';
 
 export default class TripPresenter {
   #eventListComponent = new TripEventsView();
-  #sortComponent = new SortView();
+  #sortComponent = null;
   #noEventComponent = new NoEventView();
 
   #tripContainer = null;
@@ -17,6 +19,8 @@ export default class TripPresenter {
   #tripEvents = null;
 
   #eventPresenters = new Map();
+  #currentSortType = SortType.DAY;
+  #sourcedBoardEvents = [];
 
   constructor({tripContainer, destinationsModel, offersModel, eventsModel}) {
     this.#tripContainer = tripContainer;
@@ -27,6 +31,7 @@ export default class TripPresenter {
 
   init() {
     this.#tripEvents = [...this.#eventsModel.get()];
+    this.#sourcedBoardEvents = [...this.#eventsModel.get()];
 
     this.#renderTrip();
   }
@@ -46,8 +51,42 @@ export default class TripPresenter {
     render(this.#eventListComponent, this.#tripContainer);
   }
 
+  #sortEvents(sortType) {
+    switch (sortType) {
+      case SortType.TIME:
+        this.#tripEvents.sort(sortByTime);
+        break;
+      case SortType.PRICE:
+        this.#tripEvents.sort(sortByPrice);
+        break;
+      default:
+        this.#tripEvents = [...this.#sourcedBoardEvents];
+    }
+
+    this.#currentSortType = sortType;
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortEvents(sortType);
+    this.#clearEventList();
+    this.#renderEvents();
+  };
+
   #renderSort() {
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+
     render(this.#sortComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #clearEventList() {
+    this.#eventPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventPresenters.clear();
   }
 
   #renderNoEvents() {
@@ -56,6 +95,7 @@ export default class TripPresenter {
 
   #handleEventChange = (updatedEvent) => {
     this.#tripEvents = updateItem(this.#tripEvents, updatedEvent);
+    this.#sourcedBoardEvents = updateItem(this.#sourcedBoardEvents, updatedEvent);
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
   };
 
