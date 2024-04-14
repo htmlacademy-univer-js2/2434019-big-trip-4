@@ -39,8 +39,8 @@ export default class EventPresenter {
 
     this.#eventEditComponent = new EventEditView({
       event: this.#event,
-      eventDestination: this.#destinationsModel.getById(event.destination),
-      eventOffers: this.#offersModel.getByType(event.type),
+      eventDestination: this.#destinationsModel.get(),
+      eventOffers: this.#offersModel.get(),
       onEditSubmit: this.#editSubmitHandler,
       onRollupClick: this.#editorRollupClickHandler,
     });
@@ -65,6 +65,7 @@ export default class EventPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#eventEditComponent.reset(this.#event);
       this.#replaceEditorToEvent();
     }
   }
@@ -96,6 +97,7 @@ export default class EventPresenter {
   };
 
   #editorRollupClickHandler = () => {
+    this.#eventEditComponent.reset(this.#event);
     this.#replaceEditorToEvent();
   };
 
@@ -107,6 +109,7 @@ export default class EventPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
+      this.#eventEditComponent.reset(this.#event);
       this.#replaceEditorToEvent();
     }
   };
