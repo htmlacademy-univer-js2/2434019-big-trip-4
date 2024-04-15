@@ -23,7 +23,7 @@ const Price = {
   MIN: 1000
 };
 
-const POINT_EMPTY = {
+const EVENT_EMPTY = {
   basePrice: 0,
   dateFrom: null,
   dateTo: null,
@@ -73,7 +73,7 @@ export {EVENT_COUNT,
   DESCRIPTION,
   Price,
   CITIES,
-  POINT_EMPTY,
+  EVENT_EMPTY,
   DESTINATION_COUNT,
   Duration,
   MSEC_IN_HOUR,
