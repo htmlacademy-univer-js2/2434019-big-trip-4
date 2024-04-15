@@ -18,8 +18,7 @@ export default class MockService {
   #generateEvents() {
     return Array.from({length: EVENT_COUNT}, () => {
       const type = getRandomArrayElement(TYPES);
-      const destination = getRandomArrayElement(this.#destinations);
-      const destinationIDs = destination.id;
+      const destinationIDs = (getRandomInteger(0, 1)) ? getRandomArrayElement(this.#destinations).id : null;
       const offersByType = this.#offers.find((offerByType) => offerByType.type === type);
       const offersIDs = [];
       offersByType.offers.forEach((offer) => {

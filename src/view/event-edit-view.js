@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { TYPES, CITIES, POINT_EMPTY } from '../const.js';
 import { firstLetterToUpperCase, firstLetterToLowerCase } from '../utils/common.js';
 import { formatStringToDateTime } from '../utils/event.js';
@@ -42,6 +42,9 @@ function createEventPhotoElement(pictures) {
 
 function createEventEditElement({event, eventDestination, eventOffers}) {
   const { type, offers, dateFrom, dateTo, price } = event;
+  const currentOffers = eventOffers.find((offer) => offer.type === type);
+  const currentDestination = eventDestination.find((destination) => destination.id === event.destination);
+  const nameDestination = (currentDestination) ? currentDestination.name : '';
   return `
     <li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -65,7 +68,7 @@ function createEventEditElement({event, eventDestination, eventOffers}) {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${eventDestination.name}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameDestination}" list="destination-list-1">
             ${createEventDestinationListElement()}
           </div>
 
@@ -90,24 +93,22 @@ function createEventEditElement({event, eventDestination, eventOffers}) {
           <button class="event__rollup-btn" type="button">
         </header>
         <section class="event__details">
-          <section class="event__section  event__section--offers">
+          ${(currentOffers.offers.length !== 0) ? `<section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-            ${createEventOfferElement(eventOffers.offers, offers)}
-          </section>
+            ${createEventOfferElement(currentOffers.offers, offers)}
+          </section>` : ''}
 
-          <section class="event__section  event__section--destination">
+          ${(currentDestination) ? `<section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${eventDestination.description}</p>
-
-            ${createEventPhotoElement(eventDestination.pictures)}
-          </section>
+            <p class="event__destination-description">${currentDestination.description}</p>
+            ${createEventPhotoElement(currentDestination.pictures)}
+          </section>` : ''}
         </section>
       </form>
     </li>`;
 }
 
-export default class EventEditView extends AbstractView {
-  #event = null;
+export default class EventEditView extends AbstractStatefulView {
   #eventDestination = null;
   #eventOffers = null;
   #onEditSubmit = null;
@@ -115,33 +116,88 @@ export default class EventEditView extends AbstractView {
 
   constructor({event = POINT_EMPTY, eventDestination, eventOffers, onEditSubmit, onRollupClick}) {
     super();
-    this.#event = event;
     this.#eventDestination = eventDestination;
     this.#eventOffers = eventOffers;
     this.#onEditSubmit = onEditSubmit;
     this.#onRollupClick = onRollupClick;
 
-    this.element.querySelector('.event--edit')
-      .addEventListener('submit', this.#editSubmitHandler);
-    this.element.querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#rollupClickHandler);
+    this._setState(EventEditView.parseEventToState(event));
+    this._restoreHandlers();
   }
 
   get template() {
     return createEventEditElement({
-      event: this.#event,
+      event: this._state,
       eventDestination: this.#eventDestination,
       eventOffers: this.#eventOffers
     });
   }
 
+  reset(event) {
+    this.updateElement(
+      EventEditView.parseEventToState(event),
+    );
+  }
+
+  _restoreHandlers() {
+    this.element.querySelector('.event--edit')
+      .addEventListener('submit', this.#editSubmitHandler);
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupClickHandler);
+    this.element.querySelector('.event__type-group')
+      .addEventListener('change', this.#typeChangeHandler);
+    this.element.querySelector('.event__available-offers')
+      ?.addEventListener('change', this.#offerChangeHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('change', this.#priceChangeHandler);
+  }
+
   #editSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#onEditSubmit(this.#event);
+    this.#onEditSubmit(EventEditView.parseStateToEvent(this._state));
   };
 
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
     this.#onRollupClick();
   };
+
+  #typeChangeHandler = (evt) => {
+    this.updateElement({
+      type: evt.target.value,
+      offers: [],
+    });
+  };
+
+  #offerChangeHandler = () => {
+    const checkedBoxes = Array.from(this.element.querySelectorAll('.event__offer-checkbox:checked'));
+    this._setState({
+      ...this._state,
+      offers: checkedBoxes.map((element) => element.id),
+    });
+  };
+
+  #destinationChangeHandler = (evt) => {
+    const selectedDestination = this.#eventDestination.find((destination) => destination.name === evt.target.value);
+    this.updateElement({
+      destination: (selectedDestination) ? selectedDestination.id : null,
+    });
+  };
+
+  #priceChangeHandler = (evt) => {
+    this._setState({
+      ...this._state,
+      price: evt.target.value,
+    });
+  };
+
+  static parseEventToState(event) {
+    return {...event};
+  }
+
+  static parseStateToEvent(state) {
+    return {...state};
+  }
 }
