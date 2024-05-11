@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { firstLetterToUpperCase } from '../utils/common.js';
-import { formatStringToDateTime, formatStringToShortDate, formatStringToTime, getPointDuration } from '../utils/event.js';
+import { formatStringToDateTime, formatStringToShortDate, formatStringToTime, getEventDuration } from '../utils/event.js';
 
 function createCheckedOffersElement(offers, checkedOffers) {
   const offerItem = offers.map((offer) => checkedOffers.includes(offer.id) ? `
@@ -30,7 +30,7 @@ function createEventElement({event, eventDestination, eventOffers}) {
             &mdash;
             <time class="event__end-time" datetime="${formatStringToDateTime(dateTo)}">${formatStringToTime(dateTo)}</time>
           </p>
-          <p class="event__duration">${getPointDuration(dateFrom, dateTo)}</p>
+          <p class="event__duration">${getEventDuration(dateFrom, dateTo)}</p>
         </div>
         <p class="event__price">
           &euro;&nbsp;<span class="event__price-value">${price}</span>

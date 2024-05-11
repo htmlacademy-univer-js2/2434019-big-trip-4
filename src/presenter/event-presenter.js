@@ -1,7 +1,10 @@
 import { render, replace, remove } from '../framework/render.js';
 import { Mode } from '../const.js';
+import { isEscapeKey } from '../utils/common.js';
 import EventView from '../view/event-view.js';
 import EventEditView from '../view/event-edit-view.js';
+import { UserAction, UpdateType } from '../const.js';
+import { isBigDifference } from '../utils/event.js';
 
 export default class EventPresenter {
   #eventListContainer = null;
@@ -42,6 +45,7 @@ export default class EventPresenter {
       eventDestination: this.#destinationsModel.get(),
       eventOffers: this.#offersModel.get(),
       onEditSubmit: this.#editSubmitHandler,
+      onEditReset: this.#editResetHandler,
       onRollupClick: this.#editorRollupClickHandler,
     });
 
@@ -89,7 +93,11 @@ export default class EventPresenter {
   }
 
   #favoriteClickHandler = () => {
-    this.#onDataChange({...this.#event, isFavorite: !this.#event.isFavorite});
+    this.#onDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      {...this.#event, isFavorite: !this.#event.isFavorite},
+    );
   };
 
   #eventRollupClickHandler = () => {
@@ -101,13 +109,26 @@ export default class EventPresenter {
     this.#replaceEditorToEvent();
   };
 
-  #editSubmitHandler = (event) => {
+  #editSubmitHandler = (update) => {
+    const isMinorUpdate = isBigDifference(update, this.#event);
+    this.#onDataChange(
+      UserAction.UPDATE_EVENT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update,
+    );
     this.#replaceEditorToEvent();
-    this.#onDataChange(event);
+  };
+
+  #editResetHandler = (event) => {
+    this.#onDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      event,
+    );
   };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.#eventEditComponent.reset(this.#event);
       this.#replaceEditorToEvent();

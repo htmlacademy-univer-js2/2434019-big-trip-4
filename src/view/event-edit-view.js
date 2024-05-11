@@ -114,15 +114,17 @@ export default class EventEditView extends AbstractStatefulView {
   #eventDestination = null;
   #eventOffers = null;
   #onEditSubmit = null;
+  #onEditReset = null;
   #onRollupClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({event = EVENT_EMPTY, eventDestination, eventOffers, onEditSubmit, onRollupClick}) {
+  constructor({event = EVENT_EMPTY, eventDestination, eventOffers, onEditSubmit, onEditReset, onRollupClick}) {
     super();
     this.#eventDestination = eventDestination;
     this.#eventOffers = eventOffers;
     this.#onEditSubmit = onEditSubmit;
+    this.#onEditReset = onEditReset;
     this.#onRollupClick = onRollupClick;
 
     this._setState(EventEditView.parseEventToState(event));
@@ -160,6 +162,8 @@ export default class EventEditView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.querySelector('.event--edit')
       .addEventListener('submit', this.#editSubmitHandler);
+    this.element.querySelector('.event--edit')
+      .addEventListener('reset', this.#editResetHandler);
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupClickHandler);
     this.element.querySelector('.event__type-group')
@@ -227,6 +231,11 @@ export default class EventEditView extends AbstractStatefulView {
   #editSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#onEditSubmit(EventEditView.parseStateToEvent(this._state));
+  };
+
+  #editResetHandler = (evt) => {
+    evt.preventDefault();
+    this.#onEditReset(EventEditView.parseStateToEvent(this._state));
   };
 
   #rollupClickHandler = (evt) => {
