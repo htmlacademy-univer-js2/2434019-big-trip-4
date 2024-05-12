@@ -3,38 +3,48 @@ import TripEventsView from '../view/trip-events-view.js';
 import SortView from '../view/sort-view.js';
 import EventPresenter from './event-presenter.js';
 import NoEventView from '../view/no-event-view.js';
-import { SortType, UserAction, UpdateType } from '../const.js';
+import { SortType, UserAction, UpdateType, FilterType } from '../const.js';
 import { sortByTime, sortByPrice } from '../utils/event.js';
+import { filter } from '../utils/filter.js';
 
 export default class TripPresenter {
   #eventListComponent = new TripEventsView();
   #sortComponent = null;
-  #noEventComponent = new NoEventView();
+  #noEventComponent = null;
 
   #tripContainer = null;
   #destinationsModel = null;
   #offersModel = null;
   #eventsModel = null;
+  #filterModel = null;
 
   #eventPresenters = new Map();
+  #filterType = FilterType.EVERYTHING;
   #currentSortType = SortType.DAY;
 
-  constructor({tripContainer, destinationsModel, offersModel, eventsModel}) {
+  constructor({tripContainer, destinationsModel, offersModel, eventsModel, filterModel}) {
     this.#tripContainer = tripContainer;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#eventsModel = eventsModel;
+    this.#filterModel = filterModel;
+
     this.#eventsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get events() {
+    this.#filterType = this.#filterModel.filter;
+    const events = this.#eventsModel.get();
+    const filteredEvents = filter[this.#filterType](events);
+
     switch (this.#currentSortType) {
       case SortType.TIME:
-        return [...this.#eventsModel.get()].sort(sortByTime);
+        return filteredEvents.sort(sortByTime);
       case SortType.PRICE:
-        return [...this.#eventsModel.get()].sort(sortByPrice);
+        return filteredEvents.sort(sortByPrice);
     }
-    return this.#eventsModel.get();
+    return filteredEvents;
   }
 
   init() {
@@ -62,6 +72,10 @@ export default class TripPresenter {
 
     remove(this.#sortComponent);
 
+    if (this.#noEventComponent) {
+      remove(this.#noEventComponent);
+    }
+
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
     }
@@ -86,12 +100,11 @@ export default class TripPresenter {
     render(this.#sortComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
   }
 
-  #clearEventList() {
-    this.#eventPresenters.forEach((presenter) => presenter.destroy());
-    this.#eventPresenters.clear();
-  }
-
   #renderNoEvents() {
+    this.#noEventComponent = new NoEventView({
+      filterType: this.#filterType
+    });
+
     render(this.#noEventComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
   }
 

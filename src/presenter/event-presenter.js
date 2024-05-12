@@ -95,7 +95,7 @@ export default class EventPresenter {
   #favoriteClickHandler = () => {
     this.#onDataChange(
       UserAction.UPDATE_EVENT,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       {...this.#event, isFavorite: !this.#event.isFavorite},
     );
   };

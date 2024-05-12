@@ -49,18 +49,6 @@ function getDate({ next }) {
   return date;
 }
 
-function isEventFuture(event) {
-  return dayjs().isBefore(event.dateFrom);
-}
-
-function isEventPresent(event) {
-  return dayjs().isAfter(event.dateFrom) && dayjs().isBefore(event.dateTo);
-}
-
-function isEventPast(event) {
-  return dayjs().isAfter(event.dateTo);
-}
-
 function isBigDifference(event1, event2) {
   return event1.price !== event2.price
     || getEventDuration(event1.dateFrom, event1.dateTo) !== getEventDuration(event2.dateFrom, event2.dateTo);
@@ -72,9 +60,6 @@ export {
   formatStringToShortDate,
   formatStringToTime,
   getEventDuration,
-  isEventFuture,
-  isEventPresent,
-  isEventPast,
   sortByTime,
   sortByPrice,
   isBigDifference};
