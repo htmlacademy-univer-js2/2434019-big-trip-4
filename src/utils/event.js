@@ -13,7 +13,7 @@ const formatStringToDateTime = (dateF) => dayjs(dateF).format('DD/MM/YY HH:mm');
 const formatStringToShortDate = (dateF) => dayjs(dateF).format('MMM DD');
 const formatStringToTime = (dateF) => dayjs(dateF).format('HH:mm');
 
-const getPointDuration = (dateFrom, dateTo) => {
+const getEventDuration = (dateFrom, dateTo) => {
   const timeDiff = dayjs(dateTo).diff(dayjs(dateFrom));
 
   if (timeDiff >= MSEC_IN_DAY) {
@@ -49,16 +49,9 @@ function getDate({ next }) {
   return date;
 }
 
-function isEventFuture(event) {
-  return dayjs().isBefore(event.dateFrom);
-}
-
-function isEventPresent(event) {
-  return dayjs().isAfter(event.dateFrom) && dayjs().isBefore(event.dateTo);
-}
-
-function isEventPast(event) {
-  return dayjs().isAfter(event.dateTo);
+function isBigDifference(event1, event2) {
+  return event1.price !== event2.price
+    || getEventDuration(event1.dateFrom, event1.dateTo) !== getEventDuration(event2.dateFrom, event2.dateTo);
 }
 
 export {
@@ -66,9 +59,7 @@ export {
   formatStringToDateTime,
   formatStringToShortDate,
   formatStringToTime,
-  getPointDuration,
-  isEventFuture,
-  isEventPresent,
-  isEventPast,
+  getEventDuration,
   sortByTime,
-  sortByPrice};
+  sortByPrice,
+  isBigDifference};

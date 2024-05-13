@@ -1,6 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import he from 'he';
 import { firstLetterToUpperCase } from '../utils/common.js';
-import { formatStringToDateTime, formatStringToShortDate, formatStringToTime, getPointDuration } from '../utils/event.js';
+import { formatStringToDateTime, formatStringToShortDate, formatStringToTime, getEventDuration } from '../utils/event.js';
 
 function createCheckedOffersElement(offers, checkedOffers) {
   const offerItem = offers.map((offer) => checkedOffers.includes(offer.id) ? `
@@ -23,17 +24,17 @@ function createEventElement({event, eventDestination, eventOffers}) {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${firstLetterToUpperCase(type)} ${nameDestination}</h3>
+        <h3 class="event__title">${firstLetterToUpperCase(type)} ${he.encode(nameDestination)}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${formatStringToDateTime(dateFrom)}">${formatStringToTime(dateFrom)}</time>
             &mdash;
             <time class="event__end-time" datetime="${formatStringToDateTime(dateTo)}">${formatStringToTime(dateTo)}</time>
           </p>
-          <p class="event__duration">${getPointDuration(dateFrom, dateTo)}</p>
+          <p class="event__duration">${getEventDuration(dateFrom, dateTo)}</p>
         </div>
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${price}</span>
+          &euro;&nbsp;<span class="event__price-value">${he.encode(price.toString())}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         ${createCheckedOffersElement(eventOffers.offers, offers)}
@@ -54,16 +55,16 @@ export default class EventView extends AbstractView {
   #event = null;
   #eventDestination = null;
   #eventOffers = null;
-  #onRollupClick = null;
-  #onFavoriteClick = null;
+  #handleRollupClick = null;
+  #handleFavoriteClick = null;
 
   constructor({event, eventDestination, eventOffers, onRollupClick, onFavoriteClick}) {
     super();
     this.#event = event;
     this.#eventDestination = eventDestination;
     this.#eventOffers = eventOffers;
-    this.#onRollupClick = onRollupClick;
-    this.#onFavoriteClick = onFavoriteClick;
+    this.#handleRollupClick = onRollupClick;
+    this.#handleFavoriteClick = onFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupClickHandler);
@@ -81,11 +82,11 @@ export default class EventView extends AbstractView {
 
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
-    this.#onRollupClick();
+    this.#handleRollupClick();
   };
 
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
-    this.#onFavoriteClick();
+    this.#handleFavoriteClick();
   };
 }

@@ -1,3 +1,5 @@
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
 function getRandomInteger (min, max) {
   const lower = Math.ceil(Math.min(Math.abs(min), Math.abs(max)));
   const upper = Math.floor(Math.max(Math.abs(min), Math.abs(max)));
@@ -27,4 +29,5 @@ export {
   getRandomArrayElement,
   firstLetterToUpperCase,
   firstLetterToLowerCase,
-  updateItem};
+  updateItem,
+  isEscapeKey};
