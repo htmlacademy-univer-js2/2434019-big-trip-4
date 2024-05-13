@@ -1,4 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import he from 'he';
 import { TYPES, CITIES, EVENT_EMPTY, EditType, ButtonLabel } from '../const.js';
 import { firstLetterToUpperCase, firstLetterToLowerCase } from '../utils/common.js';
 import { formatStringToDateTime } from '../utils/event.js';
@@ -77,7 +78,7 @@ function createEventEditElement({event, eventDestination, eventOffers, eventType
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameDestination}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(nameDestination)}" list="destination-list-1">
             ${createEventDestinationListElement()}
           </div>
 
@@ -94,7 +95,7 @@ function createEventEditElement({event, eventDestination, eventOffers, eventType
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(price)}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">${ButtonLabel.SAVE_DEFAULT}</button>
@@ -282,6 +283,9 @@ export default class EventEditView extends AbstractStatefulView {
   };
 
   #priceChangeHandler = (evt) => {
+    if (isNaN(Number(evt.target.value))) {
+      return this._state;
+    }
     this._setState({
       ...this._state,
       price: evt.target.value,
