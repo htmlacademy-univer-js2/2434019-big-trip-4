@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { TYPES, CITIES, EVENT_EMPTY } from '../const.js';
+import { TYPES, CITIES, EVENT_EMPTY, EditType, ButtonLabel } from '../const.js';
 import { firstLetterToUpperCase, firstLetterToLowerCase } from '../utils/common.js';
 import { formatStringToDateTime } from '../utils/event.js';
 import flatpickr from 'flatpickr';
@@ -42,7 +42,14 @@ function createEventPhotoElement(pictures) {
     </div>`;
 }
 
-function createEventEditElement({event, eventDestination, eventOffers}) {
+function createResetButtonTemplate(eventType) {
+  const label = eventType === EditType.CREATING
+    ? ButtonLabel.CANCEL_DEFAULT
+    : ButtonLabel.DELETE_DEFAULT;
+  return `<button class="event__reset-btn" type="reset">${label}</button>`;
+}
+
+function createEventEditElement({event, eventDestination, eventOffers, eventType}) {
   const { type, offers, dateFrom, dateTo, price } = event;
   const currentOffers = eventOffers.find((offer) => offer.type === type);
   const currentDestination = eventDestination.find((destination) => destination.id === event.destination);
@@ -76,10 +83,10 @@ function createEventEditElement({event, eventDestination, eventOffers}) {
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatStringToDateTime(dateFrom)}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom ? formatStringToDateTime(dateFrom) : ''}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatStringToDateTime(dateTo)}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo ? formatStringToDateTime(dateTo) : ''}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -90,9 +97,9 @@ function createEventEditElement({event, eventDestination, eventOffers}) {
             <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
-          <button class="event__rollup-btn" type="button">
+          <button class="event__save-btn  btn  btn--blue" type="submit">${ButtonLabel.SAVE_DEFAULT}</button>
+          ${createResetButtonTemplate(eventType)}
+          ${(eventType === EditType.EDITING) ? '<button class="event__rollup-btn" type="button">' : ''}
         </header>
         <section class="event__details">
           ${(currentOffers.offers.length !== 0) ? `<section class="event__section  event__section--offers">
@@ -113,19 +120,21 @@ function createEventEditElement({event, eventDestination, eventOffers}) {
 export default class EventEditView extends AbstractStatefulView {
   #eventDestination = null;
   #eventOffers = null;
-  #onEditSubmit = null;
-  #onEditReset = null;
-  #onRollupClick = null;
+  #handleEditSubmit = null;
+  #handleEditReset = null;
+  #handleRollupClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
+  #eventType;
 
-  constructor({event = EVENT_EMPTY, eventDestination, eventOffers, onEditSubmit, onEditReset, onRollupClick}) {
+  constructor({event = EVENT_EMPTY, eventDestination, eventOffers, onEditSubmit, onEditReset, onRollupClick, eventType = EditType.EDITING}) {
     super();
     this.#eventDestination = eventDestination;
     this.#eventOffers = eventOffers;
-    this.#onEditSubmit = onEditSubmit;
-    this.#onEditReset = onEditReset;
-    this.#onRollupClick = onRollupClick;
+    this.#handleEditSubmit = onEditSubmit;
+    this.#handleEditReset = onEditReset;
+    this.#handleRollupClick = onRollupClick;
+    this.#eventType = eventType;
 
     this._setState(EventEditView.parseEventToState(event));
     this._restoreHandlers();
@@ -135,7 +144,8 @@ export default class EventEditView extends AbstractStatefulView {
     return createEventEditElement({
       event: this._state,
       eventDestination: this.#eventDestination,
-      eventOffers: this.#eventOffers
+      eventOffers: this.#eventOffers,
+      eventType: this.#eventType
     });
   }
 
@@ -162,10 +172,16 @@ export default class EventEditView extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.querySelector('.event--edit')
       .addEventListener('submit', this.#editSubmitHandler);
-    this.element.querySelector('.event--edit')
-      .addEventListener('reset', this.#editResetHandler);
-    this.element.querySelector('.event__rollup-btn')
-      .addEventListener('click', this.#rollupClickHandler);
+    if (this.#eventType === EditType.EDITING) {
+      this.element.querySelector('.event__rollup-btn')
+        .addEventListener('click', this.#rollupClickHandler);
+      this.element.querySelector('.event--edit')
+        .addEventListener('reset', this.#editResetHandler);
+    }
+    if (this.#eventType === EditType.CREATING) {
+      this.element.querySelector('.event__reset-btn')
+        .addEventListener('click', this.#editResetHandler);
+    }
     this.element.querySelector('.event__type-group')
       .addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__available-offers')
@@ -230,17 +246,17 @@ export default class EventEditView extends AbstractStatefulView {
 
   #editSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#onEditSubmit(EventEditView.parseStateToEvent(this._state));
+    this.#handleEditSubmit(EventEditView.parseStateToEvent(this._state));
   };
 
   #editResetHandler = (evt) => {
     evt.preventDefault();
-    this.#onEditReset(EventEditView.parseStateToEvent(this._state));
+    this.#handleEditReset(EventEditView.parseStateToEvent(this._state));
   };
 
   #rollupClickHandler = (evt) => {
     evt.preventDefault();
-    this.#onRollupClick();
+    this.#handleRollupClick();
   };
 
   #typeChangeHandler = (evt) => {

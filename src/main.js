@@ -1,4 +1,5 @@
 import TripInfoView from './view/trip-info-view.js';
+import NewEventButtonView from './view/new-event-view.js';
 import { render, RenderPosition } from './framework/render.js';
 import TripPresenter from './presenter/trip-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
@@ -22,7 +23,8 @@ const routePresenter = new TripPresenter({
   destinationsModel,
   offersModel,
   eventsModel,
-  filterModel
+  filterModel,
+  onNewEventDestroy: handleNewEventFormClose
 });
 
 const filterPresenter = new FilterPresenter({
@@ -31,7 +33,21 @@ const filterPresenter = new FilterPresenter({
   eventsModel
 });
 
+const newEventButtonComponent = new NewEventButtonView({
+  onClick: handleNewEventButtonClick
+});
+
+function handleNewEventFormClose() {
+  newEventButtonComponent.element.disabled = false;
+}
+
+function handleNewEventButtonClick() {
+  routePresenter.createEvent();
+  newEventButtonComponent.element.disabled = true;
+}
+
 render(new TripInfoView(), tripMainContainer, RenderPosition.AFTERBEGIN);
+render(newEventButtonComponent, tripMainContainer, RenderPosition.BEFOREEND);
 
 routePresenter.init();
 filterPresenter.init();

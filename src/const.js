@@ -24,13 +24,13 @@ const Price = {
 };
 
 const EVENT_EMPTY = {
-  basePrice: 0,
+  type: DEFAULT_TYPE,
+  price: 0,
   dateFrom: null,
   dateTo: null,
-  destination: null,
   isFavorite: false,
-  offers: [],
-  type: DEFAULT_TYPE
+  destination: null,
+  offers: []
 };
 
 const MSEC_IN_SEC = 1000;
@@ -79,6 +79,17 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
+const EditType = {
+  EDITING: 'EDITING',
+  CREATING: 'CREATING'
+};
+
+const ButtonLabel = {
+  CANCEL_DEFAULT: 'Cancel',
+  DELETE_DEFAULT: 'Delete',
+  SAVE_DEFAULT: 'Save'
+};
+
 export {EVENT_COUNT,
   TYPES,
   TITLES,
@@ -94,4 +105,6 @@ export {EVENT_COUNT,
   Mode,
   SortType,
   UserAction,
-  UpdateType};
+  UpdateType,
+  EditType,
+  ButtonLabel};

@@ -14,16 +14,16 @@ export default class EventPresenter {
   #event = null;
   #eventComponent = null;
   #eventEditComponent = null;
-  #onDataChange = null;
-  #onModeChange = null;
+  #handleDataChange = null;
+  #handleModeChange = null;
   #mode = Mode.DEFAULT;
 
   constructor({eventListContainer, destinationsModel, offersModel, onDataChange, onModeChange}) {
     this.#eventListContainer = eventListContainer;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
-    this.#onDataChange = onDataChange;
-    this.#onModeChange = onModeChange;
+    this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(event) {
@@ -82,7 +82,7 @@ export default class EventPresenter {
   #replaceEventToEditor() {
     replace(this.#eventEditComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
-    this.#onModeChange();
+    this.#handleModeChange();
     this.#mode = Mode.EDITING;
   }
 
@@ -93,7 +93,7 @@ export default class EventPresenter {
   }
 
   #favoriteClickHandler = () => {
-    this.#onDataChange(
+    this.#handleDataChange(
       UserAction.UPDATE_EVENT,
       UpdateType.PATCH,
       {...this.#event, isFavorite: !this.#event.isFavorite},
@@ -111,7 +111,7 @@ export default class EventPresenter {
 
   #editSubmitHandler = (update) => {
     const isMinorUpdate = isBigDifference(update, this.#event);
-    this.#onDataChange(
+    this.#handleDataChange(
       UserAction.UPDATE_EVENT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       update,
@@ -120,7 +120,7 @@ export default class EventPresenter {
   };
 
   #editResetHandler = (event) => {
-    this.#onDataChange(
+    this.#handleDataChange(
       UserAction.DELETE_EVENT,
       UpdateType.MINOR,
       event,
