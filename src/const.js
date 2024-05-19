@@ -1,6 +1,5 @@
 const DEFAULT_TYPE = 'flight';
 const TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
-const CITIES = ['Amsterdam', 'Chamonix', 'Geneva'];
 
 const EVENT_EMPTY = {
   type: DEFAULT_TYPE,
@@ -61,17 +60,25 @@ const EditType = {
 const ButtonLabel = {
   CANCEL_DEFAULT: 'Cancel',
   DELETE_DEFAULT: 'Delete',
-  SAVE_DEFAULT: 'Save'
+  SAVE_DEFAULT: 'Save',
+  SAVE_IN_PROGRESS: 'Saving...',
+  DELETE_IN_PROGRESS: 'Deleting...',
 };
 
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
 };
 
 export {
   TYPES,
-  CITIES,
   EVENT_EMPTY,
   MSEC_IN_HOUR,
   MSEC_IN_DAY,
@@ -82,4 +89,5 @@ export {
   UpdateType,
   EditType,
   ButtonLabel,
-  Method};
+  Method,
+  TimeLimit};

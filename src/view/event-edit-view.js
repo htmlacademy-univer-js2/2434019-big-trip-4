@@ -1,30 +1,30 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import he from 'he';
-import { TYPES, CITIES, EVENT_EMPTY, EditType, ButtonLabel } from '../const.js';
+import { TYPES, EVENT_EMPTY, EditType, ButtonLabel } from '../const.js';
 import { firstLetterToUpperCase, firstLetterToLowerCase } from '../utils/common.js';
 import { formatStringToDateTime } from '../utils/event.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-function createEventTypesListElement(currentType) {
+function createEventTypesListElement(currentType, isDisabled) {
   return TYPES.map((type) =>
     `<div class="event__type-item">
-      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${currentType === type ? 'checked' : ''}>
+      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${currentType === type ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${firstLetterToUpperCase(type)}</label>
     </div>`).join('');
 }
 
-function createEventDestinationListElement() {
+function createEventDestinationListElement(eventDestination) {
   return `
     <datalist id="destination-list-1">
-      ${CITIES.map((city) => `<option value="${city}"></option>`).join('')}
+      ${eventDestination.map((destination) => `<option value="${destination.name}"></option>`).join('')}
     </datalist>`;
 }
 
-function createEventOfferElement(offers, checkedOffers) {
+function createEventOfferElement(offers, checkedOffers, isDisabled) {
   const offerItem = offers.map((offer) => `
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${firstLetterToLowerCase(offer.title)}" ${checkedOffers.includes(offer.id) ? 'checked' : ''}>
+      <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-${firstLetterToLowerCase(offer.title)}" ${checkedOffers.includes(offer.id) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
       <label class="event__offer-label" for="${offer.id}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
@@ -43,15 +43,18 @@ function createEventPhotoElement(pictures) {
     </div>`;
 }
 
-function createResetButtonTemplate(eventType) {
-  const label = eventType === EditType.CREATING
-    ? ButtonLabel.CANCEL_DEFAULT
-    : ButtonLabel.DELETE_DEFAULT;
-  return `<button class="event__reset-btn" type="reset">${label}</button>`;
+function createResetButtonTemplate(eventType, isDeleting, isDisabled) {
+  let label;
+  if (eventType === EditType.CREATING) {
+    label = ButtonLabel.CANCEL_DEFAULT;
+  } else {
+    label = isDeleting ? ButtonLabel.DELETE_IN_PROGRESS : ButtonLabel.DELETE_DEFAULT;
+  }
+  return `<button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${label}</button>`;
 }
 
 function createEventEditElement({event, eventDestination, eventOffers, eventType}) {
-  const { type, offers, dateFrom, dateTo, price } = event;
+  const { type, offers, dateFrom, dateTo, price, isDisabled, isSaving, isDeleting } = event;
   const currentOffers = eventOffers.find((offer) => offer.type === type);
   const currentDestination = eventDestination.find((destination) => destination.id === event.destination);
   const nameDestination = (currentDestination) ? currentDestination.name : '';
@@ -69,7 +72,7 @@ function createEventEditElement({event, eventDestination, eventOffers, eventType
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${createEventTypesListElement(type)}
+                ${createEventTypesListElement(type, isDisabled)}
               </fieldset>
             </div>
           </div>
@@ -78,16 +81,16 @@ function createEventEditElement({event, eventDestination, eventOffers, eventType
             <label class="event__label  event__type-output" for="event-destination-1">
               ${type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(nameDestination)}" list="destination-list-1">
-            ${createEventDestinationListElement()}
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(nameDestination)}" list="destination-list-1" ${isDisabled ? 'disabled' : ''}>
+            ${createEventDestinationListElement(eventDestination)}
           </div>
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom ? formatStringToDateTime(dateFrom) : ''}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom ? formatStringToDateTime(dateFrom) : ''}" ${isDisabled ? 'disabled' : ''}>
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo ? formatStringToDateTime(dateTo) : ''}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo ? formatStringToDateTime(dateTo) : ''}" ${isDisabled ? 'disabled' : ''}>
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -95,17 +98,17 @@ function createEventEditElement({event, eventDestination, eventOffers, eventType
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(price.toString())}">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(price.toString())}" ${isDisabled ? 'disabled' : ''}>
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">${ButtonLabel.SAVE_DEFAULT}</button>
-          ${createResetButtonTemplate(eventType)}
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? ButtonLabel.SAVE_IN_PROGRESS : ButtonLabel.SAVE_DEFAULT}</button>
+          ${createResetButtonTemplate(eventType, isDeleting, isDisabled)}
           ${(eventType === EditType.EDITING) ? '<button class="event__rollup-btn" type="button">' : ''}
         </header>
         <section class="event__details">
           ${(currentOffers.offers.length !== 0) ? `<section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-            ${createEventOfferElement(currentOffers.offers, offers)}
+            ${createEventOfferElement(currentOffers.offers, offers, isDisabled)}
           </section>` : ''}
 
           ${(currentDestination) ? `<section class="event__section  event__section--destination">
@@ -293,10 +296,18 @@ export default class EventEditView extends AbstractStatefulView {
   };
 
   static parseEventToState(event) {
-    return {...event};
+    return {...event,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToEvent(state) {
-    return {...state};
+    const event = {...state};
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
+    return event;
   }
 }
