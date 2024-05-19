@@ -3,7 +3,7 @@ import TripEventsView from '../view/trip-events-view.js';
 import SortView from '../view/sort-view.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
-import NoEventView from '../view/no-event-view.js';
+import MessageView from '../view/message-view.js';
 import { SortType, UserAction, UpdateType, FilterType } from '../const.js';
 import { sortByTime, sortByPrice } from '../utils/event.js';
 import { filter } from '../utils/filter.js';
@@ -13,7 +13,7 @@ export default class TripPresenter {
   #sortComponent = null;
   #noEventComponent = null;
 
-  #tripContainer = null;
+  #tripEventsContainer = null;
   #destinationsModel = null;
   #offersModel = null;
   #eventsModel = null;
@@ -23,9 +23,11 @@ export default class TripPresenter {
   #newEventPresenter = null;
   #filterType = FilterType.EVERYTHING;
   #currentSortType = SortType.DAY;
+  #isLoading = true;
+  #isLoadingError = false;
 
-  constructor({tripContainer, destinationsModel, offersModel, eventsModel, filterModel, onNewEventDestroy}) {
-    this.#tripContainer = tripContainer;
+  constructor({tripEventsContainer, destinationsModel, offersModel, eventsModel, filterModel, onNewEventDestroy}) {
+    this.#tripEventsContainer = tripEventsContainer;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#eventsModel = eventsModel;
@@ -68,8 +70,18 @@ export default class TripPresenter {
   }
 
   #renderTrip() {
+    if (this.#isLoading) {
+      this.#renderMessage({isLoading: true});
+      return;
+    }
+
+    if (this.#isLoadingError) {
+      this.#renderMessage({isLoadingError: true});
+      return;
+    }
+
     if (this.events.length === 0) {
-      this.#renderNoEvents();
+      this.#renderMessage();
       return;
     }
 
@@ -79,7 +91,7 @@ export default class TripPresenter {
   }
 
   #renderEventContainer() {
-    render(this.#eventListComponent, this.#tripContainer);
+    render(this.#eventListComponent, this.#tripEventsContainer);
   }
 
   #clearTrip({ resetSortType = false} = {}) {
@@ -114,15 +126,17 @@ export default class TripPresenter {
       onSortTypeChange: this.#handleSortTypeChange
     });
 
-    render(this.#sortComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
+    render(this.#sortComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
   }
 
-  #renderNoEvents() {
-    this.#noEventComponent = new NoEventView({
-      filterType: this.#filterType
+  #renderMessage({isLoading = false, isLoadingError = false} = {}) {
+    this.#noEventComponent = new MessageView({
+      filterType: this.#filterType,
+      isLoading,
+      isLoadingError
     });
 
-    render(this.#noEventComponent, this.#tripContainer, RenderPosition.AFTERBEGIN);
+    render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
   }
 
   #handleViewAction = (actionType, updateType, update) => {
@@ -150,6 +164,12 @@ export default class TripPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearTrip({resetSortType: true});
+        this.#renderTrip();
+        break;
+      case UpdateType.INIT:
+        this.#isLoadingError = data.isError;
+        this.#isLoading = false;
+        this.#clearTrip();
         this.#renderTrip();
         break;
     }
