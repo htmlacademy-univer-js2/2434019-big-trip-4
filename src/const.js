@@ -60,7 +60,9 @@ const EditType = {
 const ButtonLabel = {
   CANCEL_DEFAULT: 'Cancel',
   DELETE_DEFAULT: 'Delete',
-  SAVE_DEFAULT: 'Save'
+  SAVE_DEFAULT: 'Save',
+  SAVE_IN_PROGRESS: 'Saving...',
+  DELETE_IN_PROGRESS: 'Deleting...',
 };
 
 const Method = {
@@ -68,6 +70,11 @@ const Method = {
   PUT: 'PUT',
   POST: 'POST',
   DELETE: 'DELETE',
+};
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
 };
 
 export {
@@ -82,4 +89,5 @@ export {
   UpdateType,
   EditType,
   ButtonLabel,
-  Method};
+  Method,
+  TimeLimit};
