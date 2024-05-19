@@ -18,8 +18,8 @@ function adaptToClient(event) {
 function adaptToServer(event) {
   const adaptedEvent = {
     ...event,
-    ['base_price']: event.price,
-    ['date_from']: event.dateFrom instanceof Date ? event.dueDate.toISOString() : null,
+    ['base_price']: Number(event.price),
+    ['date_from']: event.dateFrom instanceof Date ? event.dateFrom.toISOString() : null,
     ['date_to']: event.dateTo instanceof Date ? event.dateTo.toISOString() : null,
     ['is_favorite']: event.isFavorite
   };

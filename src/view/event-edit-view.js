@@ -1,6 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import he from 'he';
-import { TYPES, CITIES, EVENT_EMPTY, EditType, ButtonLabel } from '../const.js';
+import { TYPES, EVENT_EMPTY, EditType, ButtonLabel } from '../const.js';
 import { firstLetterToUpperCase, firstLetterToLowerCase } from '../utils/common.js';
 import { formatStringToDateTime } from '../utils/event.js';
 import flatpickr from 'flatpickr';
@@ -14,10 +14,10 @@ function createEventTypesListElement(currentType) {
     </div>`).join('');
 }
 
-function createEventDestinationListElement() {
+function createEventDestinationListElement(eventDestination) {
   return `
     <datalist id="destination-list-1">
-      ${CITIES.map((city) => `<option value="${city}"></option>`).join('')}
+      ${eventDestination.map((destination) => `<option value="${destination.name}"></option>`).join('')}
     </datalist>`;
 }
 
@@ -79,7 +79,7 @@ function createEventEditElement({event, eventDestination, eventOffers, eventType
               ${type}
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(nameDestination)}" list="destination-list-1">
-            ${createEventDestinationListElement()}
+            ${createEventDestinationListElement(eventDestination)}
           </div>
 
           <div class="event__field-group  event__field-group--time">

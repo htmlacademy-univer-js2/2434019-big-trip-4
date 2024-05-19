@@ -1,6 +1,5 @@
 const DEFAULT_TYPE = 'flight';
 const TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
-const CITIES = ['Amsterdam', 'Chamonix', 'Geneva'];
 
 const EVENT_EMPTY = {
   type: DEFAULT_TYPE,
@@ -67,11 +66,12 @@ const ButtonLabel = {
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
 };
 
 export {
   TYPES,
-  CITIES,
   EVENT_EMPTY,
   MSEC_IN_HOUR,
   MSEC_IN_DAY,

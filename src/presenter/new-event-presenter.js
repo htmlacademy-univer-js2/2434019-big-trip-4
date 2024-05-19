@@ -55,7 +55,7 @@ export default class NewEventPresenter {
     this.#handleDataChange(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
-      {id: crypto.randomUUID(), ...event},
+      event,
     );
     this.destroy();
   };

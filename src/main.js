@@ -10,12 +10,12 @@ import EventsModel from './model/events-model.js';
 import FilterModel from './model/filter-model.js';
 
 const AUTHORIZATION = 'Basic dd89j3m2h5l';
-const END_POINT = 'https://21.objects.htmlacademy.pro/big-trip';
+const END_EVENT = 'https://21.objects.htmlacademy.pro/big-trip';
 
 const tripMainContainer = document.querySelector('.trip-main');
 const filterContainer = document.querySelector('.trip-controls__filters');
 const tripEventsContainer = document.querySelector('.trip-events');
-const eventsApiService = new EventsApiService(END_POINT, AUTHORIZATION);
+const eventsApiService = new EventsApiService(END_EVENT, AUTHORIZATION);
 const filterModel = new FilterModel();
 const destinationsModel = new DestinationsModel(eventsApiService);
 const offersModel = new OffersModel(eventsApiService);
