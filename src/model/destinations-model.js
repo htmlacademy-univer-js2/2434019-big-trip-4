@@ -1,10 +1,14 @@
 export default class DestinationsModel {
-  #service = null;
+  #eventsApiService = null;
   #destinations = null;
 
-  constructor(service) {
-    this.#service = service;
-    this.#destinations = this.#service.destinations;
+  constructor(eventsApiService) {
+    this.#eventsApiService = eventsApiService;
+  }
+
+  async init() {
+    this.#destinations = await this.#eventsApiService.destinations;
+    return this.#destinations;
   }
 
   get() {

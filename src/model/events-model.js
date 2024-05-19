@@ -1,23 +1,49 @@
 import Observable from '../framework/observable.js';
 import { updateItem } from '../utils/common.js';
+import { adaptToClient } from '../utils/adapt.js';
+import { UpdateType } from '../const.js';
 
 export default class EventsModel extends Observable {
-  #service = null;
-  #events = null;
+  #eventsApiService = null;
+  #destinationsModel = null;
+  #offersModel = null;
+  #events = [];
 
-  constructor(service) {
+  constructor({eventsApiService, destinationsModel, offersModel}) {
     super();
-    this.#service = service;
-    this.#events = this.#service.events;
+    this.#eventsApiService = eventsApiService;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
   }
 
   get() {
     return this.#events;
   }
 
-  updateEvent(updateType, update) {
-    this.#events = updateItem(this.#events, update);
-    this._notify(updateType, update);
+  async init() {
+    try {
+      await Promise.all([
+        this.#destinationsModel.init(),
+        this.#offersModel.init()
+      ]);
+      const events = await this.#eventsApiService.events;
+      this.#events = events.map(adaptToClient);
+      this._notify(UpdateType.INIT, {isError: false});
+    } catch(err) {
+      this.#events = [];
+      this._notify(UpdateType.INIT, {isError: true});
+    }
+  }
+
+  async updateEvent(updateType, update) {
+    try {
+      const response = await this.#eventsApiService.updateEvent(update);
+      const updatedEvent = adaptToClient(response);
+      this.#events = updateItem(this.#events, updatedEvent);
+      this._notify(updateType, updatedEvent);
+    } catch(err) {
+      throw new Error('Can\'t update event');
+    }
   }
 
   addEvent(updateType, update) {

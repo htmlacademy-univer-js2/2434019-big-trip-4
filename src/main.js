@@ -3,23 +3,30 @@ import NewEventButtonView from './view/new-event-view.js';
 import { render, RenderPosition } from './framework/render.js';
 import TripPresenter from './presenter/trip-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
-import MockService from './service/mock-service.js';
+import EventsApiService from './service/events-api-service.js';
 import DestinationsModel from './model/destinations-model.js';
 import OffersModel from './model/offers-model.js';
 import EventsModel from './model/events-model.js';
 import FilterModel from './model/filter-model.js';
 
+const AUTHORIZATION = 'Basic dd89j3m2h5l';
+const END_POINT = 'https://21.objects.htmlacademy.pro/big-trip';
+
 const tripMainContainer = document.querySelector('.trip-main');
 const filterContainer = document.querySelector('.trip-controls__filters');
-const tripContainer = document.querySelector('.trip-events');
-const mockService = new MockService();
-const destinationsModel = new DestinationsModel(mockService);
-const offersModel = new OffersModel(mockService);
-const eventsModel = new EventsModel(mockService);
+const tripEventsContainer = document.querySelector('.trip-events');
+const eventsApiService = new EventsApiService(END_POINT, AUTHORIZATION);
 const filterModel = new FilterModel();
+const destinationsModel = new DestinationsModel(eventsApiService);
+const offersModel = new OffersModel(eventsApiService);
+const eventsModel = new EventsModel({
+  eventsApiService,
+  destinationsModel,
+  offersModel
+});
 
 const routePresenter = new TripPresenter({
-  tripContainer: tripContainer,
+  tripEventsContainer,
   destinationsModel,
   offersModel,
   eventsModel,
@@ -51,3 +58,4 @@ render(newEventButtonComponent, tripMainContainer, RenderPosition.BEFOREEND);
 
 routePresenter.init();
 filterPresenter.init();
+eventsModel.init();
