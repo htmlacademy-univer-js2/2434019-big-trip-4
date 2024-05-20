@@ -1,5 +1,5 @@
 const DEFAULT_TYPE = 'flight';
-const TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+const DESTINATION_ITEMS_LENGTH = 3;
 
 const EVENT_EMPTY = {
   type: DEFAULT_TYPE,
@@ -78,7 +78,6 @@ const TimeLimit = {
 };
 
 export {
-  TYPES,
   EVENT_EMPTY,
   MSEC_IN_HOUR,
   MSEC_IN_DAY,
@@ -90,4 +89,5 @@ export {
   EditType,
   ButtonLabel,
   Method,
-  TimeLimit};
+  TimeLimit,
+  DESTINATION_ITEMS_LENGTH};

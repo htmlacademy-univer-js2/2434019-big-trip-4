@@ -21,6 +21,10 @@ const getEventDuration = (dateFrom, dateTo) => {
   return dayjs.duration(timeDiff).format('mm[M]');
 };
 
+function sortByDay(event1, event2) {
+  return new Date(event1.dateFrom) - new Date(event2.dateFrom);
+}
+
 const sortByTime = (event1, event2) => {
   const time1 = dayjs(event1.dateTo).diff(dayjs(event1.dateFrom));
   const time2 = dayjs(event2.dateTo).diff(dayjs(event2.dateFrom));
@@ -40,6 +44,7 @@ export {
   formatStringToShortDate,
   formatStringToTime,
   getEventDuration,
+  sortByDay,
   sortByTime,
   sortByPrice,
   isBigDifference};
