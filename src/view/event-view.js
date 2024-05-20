@@ -34,7 +34,7 @@ function createEventElement({event, eventDestination, eventOffers}) {
           <p class="event__duration">${getEventDuration(dateFrom, dateTo)}</p>
         </div>
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${he.encode(price.toString())}</span>
+          &euro;&nbsp;<span class="event__price-value">${he.encode(String(price))}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         ${createCheckedOffersElement(eventOffers.offers, offers)}

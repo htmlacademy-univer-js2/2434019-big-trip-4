@@ -4,9 +4,10 @@ import TripEventsView from '../view/trip-events-view.js';
 import SortView from '../view/sort-view.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
+import TripInfoPresenter from './trip-info-presenter.js';
 import MessageView from '../view/message-view.js';
 import { SortType, UserAction, UpdateType, FilterType, TimeLimit } from '../const.js';
-import { sortByTime, sortByPrice } from '../utils/event.js';
+import { sort } from '../utils/sort.js';
 import { filter } from '../utils/filter.js';
 
 export default class TripPresenter {
@@ -14,6 +15,7 @@ export default class TripPresenter {
   #sortComponent = null;
   #noEventComponent = null;
 
+  #tripInfoContainer = null;
   #tripEventsContainer = null;
   #destinationsModel = null;
   #offersModel = null;
@@ -22,6 +24,7 @@ export default class TripPresenter {
 
   #eventPresenters = new Map();
   #newEventPresenter = null;
+  #tripInfoPresenter = null;
   #filterType = FilterType.EVERYTHING;
   #currentSortType = SortType.DAY;
   #isLoading = true;
@@ -31,7 +34,8 @@ export default class TripPresenter {
     upperLimit: TimeLimit.UPPER_LIMIT
   });
 
-  constructor({tripEventsContainer, destinationsModel, offersModel, eventsModel, filterModel, onNewEventDestroy}) {
+  constructor({tripInfoContainer, tripEventsContainer, destinationsModel, offersModel, eventsModel, filterModel, onNewEventDestroy}) {
+    this.#tripInfoContainer = tripInfoContainer;
     this.#tripEventsContainer = tripEventsContainer;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
@@ -55,13 +59,7 @@ export default class TripPresenter {
     const events = this.#eventsModel.get();
     const filteredEvents = filter[this.#filterType](events);
 
-    switch (this.#currentSortType) {
-      case SortType.TIME:
-        return filteredEvents.sort(sortByTime);
-      case SortType.PRICE:
-        return filteredEvents.sort(sortByPrice);
-    }
-    return filteredEvents;
+    return sort[this.#currentSortType](filteredEvents);
   }
 
   init() {
@@ -175,12 +173,28 @@ export default class TripPresenter {
     this.#uiBlocker.unblock();
   };
 
+  #renderTripInfo = () => {
+    this.#tripInfoPresenter = new TripInfoPresenter({
+      tripInfoContainer: this.#tripInfoContainer,
+      destinationsModel: this.#destinationsModel,
+      offersModel: this.#offersModel
+    });
+    const sortedEvents = sort[SortType.DAY](this.events);
+    this.#tripInfoPresenter.init(sortedEvents);
+  };
+
+  #clearTripInfo = () => {
+    this.#tripInfoPresenter.destroy();
+  };
+
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#eventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
+        this.#clearTripInfo();
+        this.#renderTripInfo();
         this.#clearTrip();
         this.#renderTrip();
         break;
@@ -193,6 +207,7 @@ export default class TripPresenter {
         this.#isLoading = false;
         this.#clearTrip();
         this.#renderTrip();
+        this.#renderTripInfo();
         break;
     }
   };

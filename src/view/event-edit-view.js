@@ -1,16 +1,16 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import he from 'he';
-import { TYPES, EVENT_EMPTY, EditType, ButtonLabel } from '../const.js';
+import { EVENT_EMPTY, EditType, ButtonLabel } from '../const.js';
 import { firstLetterToUpperCase, firstLetterToLowerCase } from '../utils/common.js';
 import { formatStringToDateTime } from '../utils/event.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-function createEventTypesListElement(currentType, isDisabled) {
-  return TYPES.map((type) =>
+function createEventTypesListElement(eventOffers, currentType, isDisabled) {
+  return eventOffers.map((event) =>
     `<div class="event__type-item">
-      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${currentType === type ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
-      <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${firstLetterToUpperCase(type)}</label>
+      <input id="event-type-${event.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${event.type}" ${currentType === event.type ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
+      <label class="event__type-label  event__type-label--${event.type}" for="event-type-${event.type}-1">${firstLetterToUpperCase(event.type)}</label>
     </div>`).join('');
 }
 
@@ -72,7 +72,7 @@ function createEventEditElement({event, eventDestination, eventOffers, eventType
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${createEventTypesListElement(type, isDisabled)}
+                ${createEventTypesListElement(eventOffers, type, isDisabled)}
               </fieldset>
             </div>
           </div>
@@ -98,7 +98,7 @@ function createEventEditElement({event, eventDestination, eventOffers, eventType
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(price.toString())}" ${isDisabled ? 'disabled' : ''}>
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(String(price))}" ${isDisabled ? 'disabled' : ''}>
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? ButtonLabel.SAVE_IN_PROGRESS : ButtonLabel.SAVE_DEFAULT}</button>
@@ -111,10 +111,10 @@ function createEventEditElement({event, eventDestination, eventOffers, eventType
             ${createEventOfferElement(currentOffers.offers, offers, isDisabled)}
           </section>` : ''}
 
-          ${(currentDestination) ? `<section class="event__section  event__section--destination">
+          ${(currentDestination) ? `${(currentDestination.description.length || currentDestination.pictures.length) ? `<section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${currentDestination.description}</p>
-            ${createEventPhotoElement(currentDestination.pictures)}
+            ${createEventPhotoElement(currentDestination.pictures)}` : ''}
           </section>` : ''}
         </section>
       </form>
