@@ -198,24 +198,6 @@ export default class EventEditView extends AbstractStatefulView {
     this.#setDatepickers();
   }
 
-  #dateFromCloseHandler = ([userDate]) => {
-    this._setState({
-      ...this._state,
-      dateFrom: userDate
-    });
-
-    this.#datepickerTo.set('minDate', this._state.dateFrom);
-  };
-
-  #dateToCloseHandler = ([userDate]) => {
-    this._setState({
-      ...this._state,
-      dateTo: userDate
-    });
-
-    this.#datepickerFrom.set('maxDate', this._state.dateTo);
-  };
-
   #setDatepickers() {
     const [dateFromElement, dateToElement] = this.element.querySelectorAll('.event__input--time');
     const commonConfig = {
@@ -247,6 +229,24 @@ export default class EventEditView extends AbstractStatefulView {
       },
     );
   }
+
+  #dateFromCloseHandler = ([userDate]) => {
+    this._setState({
+      ...this._state,
+      dateFrom: userDate
+    });
+
+    this.#datepickerTo.set('minDate', this._state.dateFrom);
+  };
+
+  #dateToCloseHandler = ([userDate]) => {
+    this._setState({
+      ...this._state,
+      dateTo: userDate
+    });
+
+    this.#datepickerFrom.set('maxDate', this._state.dateTo);
+  };
 
   #editSubmitHandler = (evt) => {
     evt.preventDefault();

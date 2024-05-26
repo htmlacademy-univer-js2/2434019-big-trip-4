@@ -21,9 +21,7 @@ const getEventDuration = (dateFrom, dateTo) => {
   return dayjs.duration(timeDiff).format('mm[M]');
 };
 
-function sortByDay(event1, event2) {
-  return new Date(event1.dateFrom) - new Date(event2.dateFrom);
-}
+const sortByDay = (event1, event2) => new Date(event1.dateFrom) - new Date(event2.dateFrom);
 
 const sortByTime = (event1, event2) => {
   const time1 = dayjs(event1.dateTo).diff(dayjs(event1.dateFrom));
@@ -35,7 +33,7 @@ const sortByTime = (event1, event2) => {
 const sortByPrice = (event1, event2) => event2.price - event1.price;
 
 function isBigDifference(event1, event2) {
-  return event1.price !== event2.price
+  return event1.price !== event2.price || event1.offers.length !== event2.offers.length
     || getEventDuration(event1.dateFrom, event1.dateTo) !== getEventDuration(event2.dateFrom, event2.dateTo);
 }
 

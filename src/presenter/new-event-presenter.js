@@ -58,14 +58,6 @@ export default class NewEventPresenter {
     });
   }
 
-  #handleEditSubmit = (event) => {
-    this.#handleDataChange(
-      UserAction.ADD_EVENT,
-      UpdateType.MINOR,
-      event,
-    );
-  };
-
   setAborting() {
     const resetFormState = () => {
       this.#eventEditComponent.updateElement({
@@ -77,6 +69,14 @@ export default class NewEventPresenter {
 
     this.#eventEditComponent.shake(resetFormState);
   }
+
+  #handleEditSubmit = (event) => {
+    this.#handleDataChange(
+      UserAction.ADD_EVENT,
+      UpdateType.MINOR,
+      event,
+    );
+  };
 
   #handleResetClick = () => {
     this.destroy();
