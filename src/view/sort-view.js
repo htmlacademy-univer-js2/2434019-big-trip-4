@@ -19,12 +19,12 @@ function createSortElement(currentSortType) {
 
 export default class SortView extends AbstractView {
   #currentSortType = null;
-  #onSortTypeChange = null;
+  #handleSortTypeChange = null;
 
   constructor({currentSortType, onSortTypeChange}) {
     super();
     this.#currentSortType = currentSortType;
-    this.#onSortTypeChange = onSortTypeChange;
+    this.#handleSortTypeChange = onSortTypeChange;
     this.element.addEventListener('click', this.#sortTypeChangeHandler);
   }
 
@@ -37,6 +37,6 @@ export default class SortView extends AbstractView {
       return;
     }
 
-    this.#onSortTypeChange(evt.target.dataset.sortType);
+    this.#handleSortTypeChange(evt.target.dataset.sortType);
   };
 }

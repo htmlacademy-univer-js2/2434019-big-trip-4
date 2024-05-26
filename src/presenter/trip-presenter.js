@@ -21,6 +21,8 @@ export default class TripPresenter {
   #offersModel = null;
   #eventsModel = null;
   #filterModel = null;
+  #handleNewEventClick = null;
+  #handleNewEventDestroy = null;
 
   #eventPresenters = new Map();
   #newEventPresenter = null;
@@ -29,18 +31,21 @@ export default class TripPresenter {
   #currentSortType = SortType.DAY;
   #isLoading = true;
   #isLoadingError = false;
+  #isCreating = false;
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT
   });
 
-  constructor({tripInfoContainer, tripEventsContainer, destinationsModel, offersModel, eventsModel, filterModel, onNewEventDestroy}) {
+  constructor({tripInfoContainer, tripEventsContainer, destinationsModel, offersModel, eventsModel, filterModel, onNewEventDestroy, onNewEventClick}) {
     this.#tripInfoContainer = tripInfoContainer;
     this.#tripEventsContainer = tripEventsContainer;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#eventsModel = eventsModel;
     this.#filterModel = filterModel;
+    this.#handleNewEventClick = onNewEventClick;
+    this.#handleNewEventDestroy = onNewEventDestroy;
 
     this.#newEventPresenter = new NewEventPresenter({
       eventListContainer: this.#eventListComponent,
@@ -67,14 +72,17 @@ export default class TripPresenter {
   }
 
   createEvent() {
+    this.#isCreating = true;
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newEventPresenter.init();
+    this.#isCreating = false;
   }
 
   #renderTrip() {
     if (this.#isLoading) {
       this.#renderMessage({isLoading: true});
+      this.#handleNewEventClick();
       return;
     }
 
@@ -83,7 +91,7 @@ export default class TripPresenter {
       return;
     }
 
-    if (this.events.length === 0) {
+    if (this.events.length === 0 && !this.#isCreating) {
       this.#renderMessage();
       return;
     }
@@ -96,6 +104,56 @@ export default class TripPresenter {
   #renderEventContainer() {
     render(this.#eventListComponent, this.#tripEventsContainer);
   }
+
+  #renderSort() {
+    this.#sortComponent = new SortView({
+      currentSortType: this.#currentSortType,
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+
+    render(this.#sortComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderMessage({isLoading = false, isLoadingError = false} = {}) {
+    this.#noEventComponent = new MessageView({
+      filterType: this.#filterType,
+      isLoading,
+      isLoadingError,
+    });
+
+    render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderTripInfo = () => {
+    this.#tripInfoPresenter = new TripInfoPresenter({
+      tripInfoContainer: this.#tripInfoContainer,
+      destinationsModel: this.#destinationsModel,
+      offersModel: this.#offersModel
+    });
+    const sortedEvents = sort[SortType.DAY](this.events);
+    this.#tripInfoPresenter.init(sortedEvents);
+  };
+
+  #renderEvents() {
+    this.events.forEach((event) => this.#renderEvent(event));
+  }
+
+  #renderEvent(event) {
+    const eventPresenter = new EventPresenter({
+      eventListContainer: this.#eventListComponent,
+      destinationsModel: this.#destinationsModel,
+      offersModel: this.#offersModel,
+      onDataChange: this.#handleViewAction,
+      onModeChange: this.#handleModeChange,
+    });
+
+    eventPresenter.init(event);
+    this.#eventPresenters.set(event.id, eventPresenter);
+  }
+
+  #clearTripInfo = () => {
+    this.#tripInfoPresenter.destroy();
+  };
 
   #clearTrip({ resetSortType = false} = {}) {
     this.#newEventPresenter.destroy();
@@ -122,25 +180,6 @@ export default class TripPresenter {
     this.#clearTrip();
     this.#renderTrip();
   };
-
-  #renderSort() {
-    this.#sortComponent = new SortView({
-      currentSortType: this.#currentSortType,
-      onSortTypeChange: this.#handleSortTypeChange
-    });
-
-    render(this.#sortComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
-  }
-
-  #renderMessage({isLoading = false, isLoadingError = false} = {}) {
-    this.#noEventComponent = new MessageView({
-      filterType: this.#filterType,
-      isLoading,
-      isLoadingError
-    });
-
-    render(this.#noEventComponent, this.#tripEventsContainer, RenderPosition.AFTERBEGIN);
-  }
 
   #handleViewAction = async (actionType, updateType, update) => {
     this.#uiBlocker.block();
@@ -173,30 +212,16 @@ export default class TripPresenter {
     this.#uiBlocker.unblock();
   };
 
-  #renderTripInfo = () => {
-    this.#tripInfoPresenter = new TripInfoPresenter({
-      tripInfoContainer: this.#tripInfoContainer,
-      destinationsModel: this.#destinationsModel,
-      offersModel: this.#offersModel
-    });
-    const sortedEvents = sort[SortType.DAY](this.events);
-    this.#tripInfoPresenter.init(sortedEvents);
-  };
-
-  #clearTripInfo = () => {
-    this.#tripInfoPresenter.destroy();
-  };
-
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#eventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this.#clearTripInfo();
-        this.#renderTripInfo();
         this.#clearTrip();
         this.#renderTrip();
+        this.#clearTripInfo();
+        this.#renderTripInfo();
         break;
       case UpdateType.MAJOR:
         this.#clearTrip({resetSortType: true});
@@ -205,6 +230,7 @@ export default class TripPresenter {
       case UpdateType.INIT:
         this.#isLoadingError = data.isError;
         this.#isLoading = false;
+        this.#handleNewEventDestroy();
         this.#clearTrip();
         this.#renderTrip();
         this.#renderTripInfo();
@@ -216,21 +242,4 @@ export default class TripPresenter {
     this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
-
-  #renderEvents() {
-    this.events.forEach((event) => this.#renderEvent(event));
-  }
-
-  #renderEvent(event) {
-    const eventPresenter = new EventPresenter({
-      eventListContainer: this.#eventListComponent,
-      destinationsModel: this.#destinationsModel,
-      offersModel: this.#offersModel,
-      onDataChange: this.#handleViewAction,
-      onModeChange: this.#handleModeChange,
-    });
-
-    eventPresenter.init(event);
-    this.#eventPresenters.set(event.id, eventPresenter);
-  }
 }

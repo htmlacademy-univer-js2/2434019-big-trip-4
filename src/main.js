@@ -8,7 +8,7 @@ import OffersModel from './model/offers-model.js';
 import EventsModel from './model/events-model.js';
 import FilterModel from './model/filter-model.js';
 
-const AUTHORIZATION = 'Basic dd89j3m2h5l';
+const AUTHORIZATION = 'Basic dd89j3m2h7l';
 const END_EVENT = 'https://21.objects.htmlacademy.pro/big-trip';
 
 const tripMainContainer = document.querySelector('.trip-main');
@@ -24,6 +24,14 @@ const eventsModel = new EventsModel({
   offersModel
 });
 
+const newEventButtonComponent = new NewEventButtonView({
+  onClick: handleNewEventButtonClick
+});
+
+function handleNewEventClick() {
+  newEventButtonComponent.element.disabled = true;
+}
+
 const routePresenter = new TripPresenter({
   tripInfoContainer: tripMainContainer,
   tripEventsContainer,
@@ -31,7 +39,8 @@ const routePresenter = new TripPresenter({
   offersModel,
   eventsModel,
   filterModel,
-  onNewEventDestroy: handleNewEventFormClose
+  onNewEventDestroy: handleNewEventFormClose,
+  onNewEventClick: handleNewEventClick,
 });
 
 const filterPresenter = new FilterPresenter({
@@ -40,20 +49,16 @@ const filterPresenter = new FilterPresenter({
   eventsModel
 });
 
-const newEventButtonComponent = new NewEventButtonView({
-  onClick: handleNewEventButtonClick
-});
-
 function handleNewEventFormClose() {
   newEventButtonComponent.element.disabled = false;
 }
 
 function handleNewEventButtonClick() {
   routePresenter.createEvent();
-  newEventButtonComponent.element.disabled = true;
+  handleNewEventClick();
 }
 
 render(newEventButtonComponent, tripMainContainer, RenderPosition.BEFOREEND);
-routePresenter.init();
 filterPresenter.init();
+routePresenter.init();
 eventsModel.init();
