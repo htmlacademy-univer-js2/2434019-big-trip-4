@@ -35,12 +35,12 @@ function createEventOfferElement(offers, checkedOffers, isDisabled) {
 }
 
 function createEventPhotoElement(pictures) {
-  return `
-    <div class="event__photos-container">
+  return `${pictures.length ?
+    `<div class="event__photos-container">
       <div class="event__photos-tape">
         ${pictures.map((picture) => `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`).join('')}
       </div>
-    </div>`;
+    </div>` : ''}`;
 }
 
 function createResetButtonTemplate(eventType, isDeleting, isDisabled) {
