@@ -67,6 +67,14 @@ export default class TripPresenter {
     return sort[this.#currentSortType](filteredEvents);
   }
 
+  get eventsEverything() {
+    this.#filterType = FilterType.EVERYTHING;
+    const events = this.#eventsModel.get();
+    const filteredEvents = filter[this.#filterType](events);
+
+    return sort[this.#currentSortType](filteredEvents);
+  }
+
   init() {
     this.#renderTrip();
   }
@@ -130,7 +138,7 @@ export default class TripPresenter {
       destinationsModel: this.#destinationsModel,
       offersModel: this.#offersModel
     });
-    const sortedEvents = sort[SortType.DAY](this.events);
+    const sortedEvents = sort[SortType.DAY](this.eventsEverything);
     this.#tripInfoPresenter.init(sortedEvents);
   };
 
