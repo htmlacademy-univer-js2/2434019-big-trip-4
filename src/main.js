@@ -8,7 +8,7 @@ import OffersModel from './model/offers-model.js';
 import EventsModel from './model/events-model.js';
 import FilterModel from './model/filter-model.js';
 
-const AUTHORIZATION = 'Basic dd89j3m2h7l';
+const AUTHORIZATION = 'Basic dd89j3m2h10l';
 const END_EVENT = 'https://21.objects.htmlacademy.pro/big-trip';
 
 const tripMainContainer = document.querySelector('.trip-main');
